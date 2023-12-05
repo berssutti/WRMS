@@ -23,7 +23,7 @@ void nvs_init()
     ESP_ERROR_CHECK(ret);
 }
 
-void nvs_write(int32_t valor, char *name)
+int32_t nvs_write(int32_t valor, char *name)
 {
     esp_err_t err;
     nvs_handle_t nvs_handle;
@@ -32,7 +32,7 @@ void nvs_write(int32_t valor, char *name)
     if (err != ESP_OK)
     {
         ESP_LOGE("NVS", "Error opening NVS namespace: %s", esp_err_to_name(err));
-        return;
+        return 1;
     }
 
     err = nvs_set_i32(nvs_handle, name, valor);
@@ -40,16 +40,18 @@ void nvs_write(int32_t valor, char *name)
     {
         ESP_LOGE("NVS", "Error writing to NVS: %s", esp_err_to_name(err));
         nvs_close(nvs_handle);
-        return;
+        return 1;
     }
 
     err = nvs_commit(nvs_handle);
     if (err != ESP_OK)
     {
         ESP_LOGE("NVS", "Error committing NVS changes: %s", esp_err_to_name(err));
+        return 1;
     }
 
     nvs_close(nvs_handle);
+    return 0;
 }
 
 int32_t nvs_read(char *name)
