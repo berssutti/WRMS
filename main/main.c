@@ -8,6 +8,12 @@
 #define RXD_PIN 25
 #define BUF_SIZE 1024
 
+#define NVS_NAMESPACE "storage"
+
+SemaphoreHandle_t conexaoWifiSemaphore;
+SemaphoreHandle_t conexaoMQTTSemaphore;
+
+
 void init_uart() {
     uart_config_t uart_config = {
         .baud_rate = 9600,
@@ -36,7 +42,30 @@ void uart_task(void *pvParameters) {
     }
 }
 
+
+void conectadoWifi(void *params)
+{
+    while (true)
+    {
+        if (xSemaphoreTake(conexaoWifiSemaphore, portMAX_DELAY))
+        {
+            // Processamento Internet
+            mqtt_start();
+        }
+    }
+}
+
+
 void app_main() {
+    // inicializações
+    nvs_init();
+
+    conexaoWifiSemaphore = xSemaphoreCreateBinary();
+    conexaoMQTTSemaphore = xSemaphoreCreateBinary();
+    wifi_start();
+
+    xTaskCreate(&conectadoWifi, "Conexão ao MQTT", 4096, NULL, 1, NULL);
+
     printf("Ola mundo");
     init_uart();
     xTaskCreate(uart_task, "uart_task", 2048, NULL, 10, NULL);
