@@ -66,7 +66,17 @@ void app_main() {
 
     xTaskCreate(&conectadoWifi, "Conexão ao MQTT", 4096, NULL, 1, NULL);
 
-    printf("Ola mundo");
-    init_uart();
-    xTaskCreate(uart_task, "uart_task", 2048, NULL, 10, NULL);
+    // Tests
+    int32_t contador=0;
+    for(int i=0; i<10;i++){
+        contador++;
+    }    
+    nvs_write(contador, "contador");
+
+    int32_t resultado = nvs_read("contador");
+    printf("Resultado: %d", contador); // é para ser 10
+
+    // printf("Ola mundo");
+    // init_uart();
+    // xTaskCreate(uart_task, "uart_task", 2048, NULL, 10, NULL);
 }
