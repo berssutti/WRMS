@@ -32,7 +32,7 @@ int32_t nvs_write(int32_t valor, char *name)
     if (err != ESP_OK)
     {
         ESP_LOGE("NVS", "Error opening NVS namespace: %s", esp_err_to_name(err));
-        return 1;
+        return -1;
     }
 
     err = nvs_set_i32(nvs_handle, name, valor);
@@ -40,14 +40,14 @@ int32_t nvs_write(int32_t valor, char *name)
     {
         ESP_LOGE("NVS", "Error writing to NVS: %s", esp_err_to_name(err));
         nvs_close(nvs_handle);
-        return 1;
+        return -1;
     }
 
     err = nvs_commit(nvs_handle);
     if (err != ESP_OK)
     {
         ESP_LOGE("NVS", "Error committing NVS changes: %s", esp_err_to_name(err));
-        return 1;
+        return -1;
     }
 
     nvs_close(nvs_handle);
@@ -64,7 +64,7 @@ int32_t nvs_read(char *name)
     if (err != ESP_OK)
     {
         ESP_LOGE("NVS", "Error opening NVS namespace: %s", esp_err_to_name(err));
-        return 0;
+        return -1;
     }
 
     err = nvs_get_i32(nvs_handle, name, &valor);
@@ -72,7 +72,7 @@ int32_t nvs_read(char *name)
     {
         ESP_LOGE("NVS", "Error reading 'contador' from NVS: %s", esp_err_to_name(err));
         nvs_close(nvs_handle);
-        return 0;
+        return -1;
     }
     nvs_close(nvs_handle);
 

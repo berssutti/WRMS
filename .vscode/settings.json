@@ -2,5 +2,8 @@
   "C_Cpp.intelliSenseEngine": "default",
   "idf.flashType": "UART",
   "idf.port": "/dev/ttyUSB0",
-  "idf.adapterTargetName": "esp32"
+  "idf.adapterTargetName": "esp32",
+  "files.associations": {
+    "stdlib.h": "c"
+  }
 }
