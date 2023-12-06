@@ -22,20 +22,18 @@ menu "Configuração do Wifi"
             Configure o valor máximo de tentativas de conexão.
 endmenu
 
-menu "Outros"
-    config ESP_WIFI_PASSWORD
-        string "Senha do Wifi"
-        default "minha_senha"
-        help
-            Senha do WiFi (WPA or WPA2).
-endmenu
-
-menu "MQTT Token"
+menu "MQTT"
     config ESP_MQTT_TOKEN
         string "MQTT TOKEN"
         default "ndAHaTa7wTJcWd4VoCWn"
         help
             Token para conexão MQTT.
+
+    config ESP_MQTT_HOST_IP
+        string "IP do Computador Host do Thingsboard"
+        default "192.168.0.12"
+        help
+            IP do computador host do Thingsboard.
 endmenu
 
 

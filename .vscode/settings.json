@@ -4,6 +4,18 @@
   "idf.port": "/dev/ttyUSB0",
   "idf.adapterTargetName": "esp32",
   "files.associations": {
-    "stdlib.h": "c"
-  }
+    "stdlib.h": "c",
+    "my_nvs.h": "c",
+    "gpio.h": "c",
+    "uart.h": "c",
+    "task.h": "c",
+    "freertos.h": "c",
+    "stdio.h": "c",
+    "stddef.h": "c"
+  },
+  "cmake.configureOnOpen": false,
+  "idf.openOcdConfigs": [
+    "interface/ftdi/esp32_devkitj_v1.cfg",
+    "target/esp32.cfg"
+  ]
 }

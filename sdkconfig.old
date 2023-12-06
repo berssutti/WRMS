@@ -342,17 +342,21 @@ CONFIG_PARTITION_TABLE_MD5=y
 #
 # Configuração do Wifi
 #
-CONFIG_ESP_WIFI_SSID="NET-VIRTUA 801"
+CONFIG_ESP_WIFI_SSID="NET VIRTUA 801"
 CONFIG_ESP_WIFI_PASSWORD="478383490"
 CONFIG_ESP_MAXIMUM_RETRY=5
 # end of Configuração do Wifi
 
 #
-# MQTT
+# Outros
+#
+# end of Outros
+
+#
+# MQTT Token
 #
 CONFIG_ESP_MQTT_TOKEN="ndAHaTa7wTJcWd4VoCWn"
-CONFIG_ESP_MQTT_HOST_IP="192.168.0.12"
-# end of MQTT
+# end of MQTT Token
 
 #
 # Compiler options

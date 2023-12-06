@@ -1,3 +1,5 @@
+
+
 #include <stdio.h>
 #include <stdint.h>
 #include <stddef.h>
@@ -5,90 +7,41 @@
 #include "esp_system.h"
 #include "esp_event.h"
 #include "esp_netif.h"
-
 #include "freertos/FreeRTOS.h"
 #include "freertos/task.h"
 #include "freertos/semphr.h"
 #include "freertos/queue.h"
-
 #include "lwip/sockets.h"
 #include "lwip/dns.h"
 #include "lwip/netdb.h"
-
 #include "esp_log.h"
 #include "mqtt_client.h"
-
 #include "mqtt.h"
-#include "arCondicionado.h"
-#include "ledRgb.h"
-#define R 14
-#define G 26
-#define B 27
 #define TAG "MQTT"
-#define MQTT_TOKEN CONFIG_ESP_MQTT_TOKEN
-
+#define THINGSBOARD_HOST CONFIG_ESP_MQTT_HOST_IP
 extern SemaphoreHandle_t conexaoMQTTSemaphore;
 esp_mqtt_client_handle_t client;
-
 static void log_error_if_nonzero(const char *message, int error_code)
 {
-    if (error_code != 0)
-    {
+    if (error_code != 0) {
         ESP_LOGE(TAG, "Last error %s: 0x%x", message, error_code);
     }
 }
-
-void parseMqttData(char *data, int len)
-{
-    if (strstr(data, "ligaACAdicional"))
-    {
-        setting_adicional_ac();
-    }
-    else if (strstr(data, "setValue"))
-    {
-        char color = strstr(data, "setValue")[8];
-        int i = 1;
-        char valueInt[20];
-
-        while (strstr(data, "params")[i + 8] != '}')
-        {
-            i++;
-        }
-        strncpy(valueInt, strstr(data, "params") + 8, i);
-
-        switch (color)
-        {
-        case 'R':
-            setRGB(R, atoi(valueInt));
-            break;
-        case 'G':
-            setRGB(G, atoi(valueInt));
-            break;
-        case 'B':
-            setRGB(B, atoi(valueInt));
-            break;
-        }
-    }
-}
-
 static void mqtt_event_handler(void *handler_args, esp_event_base_t base, int32_t event_id, void *event_data)
 {
-    ESP_LOGD(TAG, "Event dispatched from event loop base=%s, event_id=%d", base, (int)event_id);
+    ESP_LOGD(TAG, "Event dispatched from event loop base=%s, event_id=%d", base, (int) event_id);
     esp_mqtt_event_handle_t event = event_data;
     esp_mqtt_client_handle_t client = event->client;
     int msg_id;
-    switch ((esp_mqtt_event_id_t)event_id)
-    {
+    switch ((esp_mqtt_event_id_t)event_id) {
     case MQTT_EVENT_CONNECTED:
         ESP_LOGI(TAG, "MQTT_EVENT_CONNECTED");
         xSemaphoreGive(conexaoMQTTSemaphore);
-
-        msg_id = esp_mqtt_client_subscribe(client, "v1/devices/me/rpc/request/+", 0);
+        msg_id = esp_mqtt_client_publish(client, "v1/devices/me/telemetry", "{\"data\": 1}", 0, 0, 0);
         break;
     case MQTT_EVENT_DISCONNECTED:
         ESP_LOGI(TAG, "MQTT_EVENT_DISCONNECTED");
         break;
-
     case MQTT_EVENT_SUBSCRIBED:
         ESP_LOGI(TAG, "MQTT_EVENT_SUBSCRIBED, msg_id=%d", event->msg_id);
         msg_id = esp_mqtt_client_publish(client, "/topic/qos0", "data", 0, 0, 0);
@@ -104,15 +57,14 @@ static void mqtt_event_handler(void *handler_args, esp_event_base_t base, int32_
         ESP_LOGI(TAG, "MQTT_EVENT_DATA");
         printf("TOPIC=%.*s\r\n", event->topic_len, event->topic);
         printf("DATA=%.*s\r\n", event->data_len, event->data);
-        parseMqttData(event->data, event->data_len);
         break;
     case MQTT_EVENT_ERROR:
         ESP_LOGI(TAG, "MQTT_EVENT_ERROR");
-        if (event->error_handle->error_type == MQTT_ERROR_TYPE_TCP_TRANSPORT)
-        {
+        if (event->error_handle->error_type == MQTT_ERROR_TYPE_TCP_TRANSPORT) {
             log_error_if_nonzero("reported from esp-tls", event->error_handle->esp_tls_last_esp_err);
+
             log_error_if_nonzero("reported from tls stack", event->error_handle->esp_tls_stack_err);
-            log_error_if_nonzero("captured as transport's socket errno", event->error_handle->esp_transport_sock_errno);
+            log_error_if_nonzero("captured as transport's socket errno",  event->error_handle->esp_transport_sock_errno);
             ESP_LOGI(TAG, "Last errno string (%s)", strerror(event->error_handle->esp_transport_sock_errno));
         }
         break;
@@ -121,19 +73,21 @@ static void mqtt_event_handler(void *handler_args, esp_event_base_t base, int32_
         break;
     }
 }
-
-void mqtt_start()
+esp_err_t mqtt_start()
 {
+    char str[80];
+    strcpy(str, "mqtt://");
+    strcat(str, THINGSBOARD_HOST);
     esp_mqtt_client_config_t mqtt_config = {
-        .broker.address.uri = "mqtt://164.41.98.25",
-        .credentials.username = MQTT_TOKEN};
+        .broker.address.uri = str,
+        .credentials.username = "LXEWhVSdr80C1d8Fh56N"
+
+    };
     client = esp_mqtt_client_init(&mqtt_config);
     esp_mqtt_client_register_event(client, ESP_EVENT_ANY_ID, mqtt_event_handler, NULL);
-    esp_mqtt_client_start(client);
-    esp_mqtt_client_subscribe(client, "v1/devices/me/attributes", 0);
+    return esp_mqtt_client_start(client);
 }
-
-void mqtt_envia_mensagem(char *topico, char *mensagem)
+void mqtt_envia_mensagem(char * topico, char * mensagem)
 {
     int message_id = esp_mqtt_client_publish(client, topico, mensagem, 0, 1, 0);
     ESP_LOGI(TAG, "Mesnagem enviada, ID: %d", message_id);

@@ -3,15 +3,15 @@
 #include "freertos/task.h"
 #include "driver/gpio.h"
 
-#include "ky033.h"
+// #include "ky033.h"
 
 // configuração do pino do sensor
-#define ENTRADA_PIN CONFIG_ESP_KY033_ENTRADA_PIN
-#define SAIDA_PIN CONFIG_ESP_KY033_SAIDA_PIN
+#define ENTRADA_PIN 1
+#define SAIDA_PIN 2
 
 void ky033_init(gpio_num_t pin)
 {
-    if (pin == CONFIG_ESP_KY033_ENTRADA_PIN || pin == CONFIG_ESP_KY033_SAIDA_PIN)
+    if (pin == ENTRADA_PIN || pin == SAIDA_PIN)
     {
         gpio_config_t io_conf = {
             .pin_bit_mask = ((1ULL << ENTRADA_PIN) | ((1ULL << SAIDA_PIN))),
