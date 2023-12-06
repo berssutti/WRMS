@@ -4,6 +4,7 @@
   "idf.port": "/dev/ttyUSB0",
   "idf.adapterTargetName": "esp32",
   "files.associations": {
-    "stdlib.h": "c"
+    "stdlib.h": "c",
+    "gpio.h": "c"
   }
 }

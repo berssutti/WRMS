@@ -19,8 +19,6 @@
 #include "mqtt_client.h"
 
 #include "mqtt.h"
-#include "arCondicionado.h"
-#include "ledRgb.h"
 #define R 14
 #define G 26
 #define B 27
@@ -38,38 +36,39 @@ static void log_error_if_nonzero(const char *message, int error_code)
     }
 }
 
-void parseMqttData(char *data, int len)
-{
-    if (strstr(data, "ligaACAdicional"))
-    {
-        setting_adicional_ac();
-    }
-    else if (strstr(data, "setValue"))
-    {
-        char color = strstr(data, "setValue")[8];
-        int i = 1;
-        char valueInt[20];
+/////////// Tem que ver se vai usar //////////////////////////
+// void parseMqttData(char *data, int len)
+// {
+//     if (strstr(data, "ligaACAdicional"))
+//     {
+//         setting_adicional_ac();
+//     }
+//     else if (strstr(data, "setValue"))
+//     {
+//         char color = strstr(data, "setValue")[8];
+//         int i = 1;
+//         char valueInt[20];
 
-        while (strstr(data, "params")[i + 8] != '}')
-        {
-            i++;
-        }
-        strncpy(valueInt, strstr(data, "params") + 8, i);
+//         while (strstr(data, "params")[i + 8] != '}')
+//         {
+//             i++;
+//         }
+//         strncpy(valueInt, strstr(data, "params") + 8, i);
 
-        switch (color)
-        {
-        case 'R':
-            setRGB(R, atoi(valueInt));
-            break;
-        case 'G':
-            setRGB(G, atoi(valueInt));
-            break;
-        case 'B':
-            setRGB(B, atoi(valueInt));
-            break;
-        }
-    }
-}
+//         switch (color)
+//         {
+//         case 'R':
+//             setRGB(R, atoi(valueInt));
+//             break;
+//         case 'G':
+//             setRGB(G, atoi(valueInt));
+//             break;
+//         case 'B':
+//             setRGB(B, atoi(valueInt));
+//             break;
+//         }
+//     }
+// }
 
 static void mqtt_event_handler(void *handler_args, esp_event_base_t base, int32_t event_id, void *event_data)
 {
@@ -104,7 +103,7 @@ static void mqtt_event_handler(void *handler_args, esp_event_base_t base, int32_
         ESP_LOGI(TAG, "MQTT_EVENT_DATA");
         printf("TOPIC=%.*s\r\n", event->topic_len, event->topic);
         printf("DATA=%.*s\r\n", event->data_len, event->data);
-        parseMqttData(event->data, event->data_len);
+        // parseMqttData(event->data, event->data_len);
         break;
     case MQTT_EVENT_ERROR:
         ESP_LOGI(TAG, "MQTT_EVENT_ERROR");

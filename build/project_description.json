@@ -1,7 +1,7 @@
 {
     "version":            "1",
     "project_name":       "main",
-    "project_version":    "1",
+    "project_version":    "1988068-dirty",
     "project_path":       "/home/bernardo/Projetos/pi1/WRMS",
     "idf_path":           "/home/bernardo/esp/esp-idf",
     "build_dir":          "/home/bernardo/Projetos/pi1/WRMS/build",
@@ -790,7 +790,7 @@
             "managed_reqs": [],
             "managed_priv_reqs": [],
             "file": "/home/bernardo/Projetos/pi1/WRMS/build/esp-idf/main/libmain.a",
-            "sources": [ "/home/bernardo/Projetos/pi1/WRMS/main/main.c", "/home/bernardo/Projetos/pi1/WRMS/components/gpsModule/gpsModule.c" ],
+            "sources": [ "/home/bernardo/Projetos/pi1/WRMS/main/main.c", "/home/bernardo/Projetos/pi1/WRMS/components/gps_module/gps_module.c", "/home/bernardo/Projetos/pi1/WRMS/components/mqtt/mqtt.c", "/home/bernardo/Projetos/pi1/WRMS/components/wifi/wifi.c", "/home/bernardo/Projetos/pi1/WRMS/components/my_nvs/my_nvs.c" ],
             "include_dirs": [ "." ]
         },
         "mbedtls": {

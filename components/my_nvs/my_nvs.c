@@ -64,7 +64,7 @@ int32_t nvs_read(char *name)
     if (err != ESP_OK)
     {
         ESP_LOGE("NVS", "Error opening NVS namespace: %s", esp_err_to_name(err));
-        return -1;
+        return 0;
     }
 
     err = nvs_get_i32(nvs_handle, name, &valor);
@@ -72,7 +72,7 @@ int32_t nvs_read(char *name)
     {
         ESP_LOGE("NVS", "Error reading 'contador' from NVS: %s", esp_err_to_name(err));
         nvs_close(nvs_handle);
-        return -1;
+        return 0;
     }
     nvs_close(nvs_handle);
 
