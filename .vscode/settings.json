@@ -1,7 +1,7 @@
 {
   "C_Cpp.intelliSenseEngine": "default",
   "idf.flashType": "UART",
-  "idf.port": "/dev/ttyUSB0",
+  "idf.port": "/dev/ttyACM0",
   "idf.adapterTargetName": "esp32",
   "files.associations": {
     "stdlib.h": "c",
@@ -11,7 +11,9 @@
     "task.h": "c",
     "freertos.h": "c",
     "stdio.h": "c",
-    "stddef.h": "c"
+    "stddef.h": "c",
+    "gps_module.h": "c",
+    "tinygps.h": "c"
   },
   "cmake.configureOnOpen": false,
   "idf.openOcdConfigs": [

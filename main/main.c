@@ -19,9 +19,14 @@
 
 SemaphoreHandle_t conexaoWifiSemaphore;
 SemaphoreHandle_t conexaoMQTTSemaphore;
-
+float velocidade = 0;
+float altitude = 0;
+float latitude = 0;
+float longitude = 0;
 int wifi_connected = 0;
 int mqtt_connected = 0;
+
+
 
 void conectadoWifi(void *params)
 {
@@ -39,20 +44,16 @@ void conectadoWifi(void *params)
 
 void conectadoMQTT(void *params)
 {
+    srand(time(NULL));
+
     while (true)
     {
         printf("Esperando conexão com MQTT\n");
         if (xSemaphoreTake(conexaoMQTTSemaphore, portMAX_DELAY))
         {
             printf("Chegou conexão com MQTT\n");
-            srand(time(NULL));
-            int velocidade = rand() % 180;
-            int altitude = rand() % 100;
-            float a = 5.0;
-            float latitude = ((float)rand()/(float)(RAND_MAX)) * a;
-            float longitude = ((float)rand()/(float)(RAND_MAX)) * a;
             char *mensagem = malloc(sizeof(char) * 100);
-            sprintf(mensagem, "{\"speed\": %d, \"altitud\": %d, \"latitude\": %f, \"longitude\": %f}", velocidade, altitude, latitude, longitude);
+            sprintf(mensagem, "{\"speed\": %f, \"altitud\": %f, \"latitude\": %f, \"longitude\": %f}", velocidade, altitude, latitude, longitude);
             mqtt_envia_mensagem("v1/devices/me/telemetry", mensagem);
             xSemaphoreGive(conexaoMQTTSemaphore);
             vTaskDelay(1000 / portTICK_PERIOD_MS);

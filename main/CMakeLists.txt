@@ -3,4 +3,5 @@ idf_component_register(SRCS "main.c"
                     "../components/mqtt/mqtt.c"
                     "../components/wifi/wifi.c"
                     "../components/my_nvs/my_nvs.c"
+                    "../components/tinyGPS/tinygps.c"
                     INCLUDE_DIRS ".")
