@@ -52,7 +52,7 @@ void uart_task(void *pvParameters)
                 gps_encode(gpsStream[i]);
             }
             velocidade = gps_f_speed_mps();
-            altitude = gps_f_altitude();
+            altitude = gps_f_altitude() - 1000;
             gps_get_position(&latitude, &longitude, &fix_age);
         }
         else
