@@ -11,51 +11,6 @@ char *gpsStream;
 
 extern float velocidade, altitude, longitude, latitude;
 
-// Function to parse a GPGGA sentence
-void parseGPGGA(char *sentence)
-{
-    char *token = strtok(sentence, ",");
-    int count = 1;
-
-    while (token != NULL)
-    {
-        if (count == 2)
-        {
-            printf("Latitude: %s\n", token);
-        }
-        else if (count == 4)
-        {
-            printf("Longitude: %s\n", token);
-        }
-        else if (count == 7)
-        {
-            printf("Number of Satellites: %s\n", token);
-        }
-
-        token = strtok(NULL, ",");
-        count++;
-    }
-}
-
-// Function to parse NMEA sentence
-void parseNMEA(char *data)
-{
-    char *sentence = strtok(data, "\r\n");
-
-    while (sentence != NULL)
-    {
-        if (strncmp(sentence, "$GPGGA", 6) == 0)
-        {
-            // GPGGA sentence found
-            parseGPGGA(sentence);
-        }
-
-        sentence = strtok(NULL, "\r\n");
-    }
-
-    printf("%s\n", sentence);
-}
-
 void init_uart(int uart_num, int baud_rate)
 {
     uart_config_t uart_config = {
@@ -99,7 +54,6 @@ void uart_task(void *pvParameters)
             velocidade = gps_f_speed_mps();
             altitude = gps_f_altitude();
             gps_get_position(&latitude, &longitude, &fix_age);
-
         }
         else
         {
