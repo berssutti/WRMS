@@ -39,6 +39,8 @@ void parseNMEA(char *data) {
 
         sentence = strtok(NULL, "\r\n");
     }
+
+    printf("%s\n", sentence);
 }
 
 
@@ -68,12 +70,17 @@ void uart_task(void *pvParameters) {
     uint8_t *data = (uint8_t *) malloc(BUF_SIZE);
 
     while (1) {
+        printf("Lendo Dados do GPS...\n");
         int len = uart_read_bytes(UART_NUM_1, data, BUF_SIZE, 20 / portTICK_PERIOD_MS);
         
         if (len > 0) {
             // Processar os dados lidos do UART aqui
-            // printf("Dados lidos: %.*s\n",len, data);
+            printf("Dados lidos: %.*s\n",len, data);
             parseNMEA((char *) data);
+        } else {
+            printf("Sem dados disponíveis ...\n");
         }
+
+        vTaskDelay(500 / portTICK_PERIOD_MS);
     }
 }

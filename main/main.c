@@ -7,6 +7,7 @@
 #include "../components/wifi/wifi.h"
 #include "../components/mqtt/mqtt.h"
 #include "../components/gps_module/gps_module.h"
+
 #include "driver/gpio.h"
 #include "stdlib.h"
 #include "time.h"
@@ -46,8 +47,12 @@ void conectadoMQTT(void *params)
             printf("Chegou conexão com MQTT\n");
             srand(time(NULL));
             int velocidade = rand() % 180;
+            int altitude = rand() % 100;
+            float a = 5.0;
+            float latitude = ((float)rand()/(float)(RAND_MAX)) * a;
+            float longitude = ((float)rand()/(float)(RAND_MAX)) * a;
             char *mensagem = malloc(sizeof(char) * 100);
-            sprintf(mensagem, "{\"speed\": %d}", velocidade);
+            sprintf(mensagem, "{\"speed\": %d, \"altitud\": %d, \"latitude\": %f, \"longitude\": %f}", velocidade, altitude, latitude, longitude);
             mqtt_envia_mensagem("v1/devices/me/telemetry", mensagem);
             xSemaphoreGive(conexaoMQTTSemaphore);
             vTaskDelay(1000 / portTICK_PERIOD_MS);
@@ -110,7 +115,8 @@ void app_main()
     conexaoWifiSemaphore = xSemaphoreCreateBinary();
     conexaoMQTTSemaphore = xSemaphoreCreateBinary();
     wifi_start();
-
+    init_gps_uart();
     xTaskCreate(&conectadoWifi, "Conexão ao MQTT", 4096, NULL, 1, NULL);
     xTaskCreate(&conectadoMQTT, "Envio de Dados do GPS", 4096, NULL, 1, NULL);
+    xTaskCreate(&uart_task, "Task que fica monitorando dados vindos do GPS", 4069, NULL, 1, NULL);
 }
