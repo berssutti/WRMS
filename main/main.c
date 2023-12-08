@@ -30,14 +30,7 @@ void conectadoWifi(void *params)
         {
             wifi_connected = 1;
 
-            if (mqtt_start() == ESP_OK)
-            {
-                mqtt_connected = 1;
-            }
-            else
-            {
-                printf("Erro ao iniciar MQTT\n");
-            }
+            mqtt_start();
         }
     }
 
@@ -51,6 +44,7 @@ void conectadoMQTT(void *params)
         printf("Esperando conexão com MQTT\n");
         if (xSemaphoreTake(conexaoMQTTSemaphore, portMAX_DELAY))
         {
+            mqtt_connected = 1;
             printf("Chegou conexão com MQTT\n");
             mqtt_connected = 1;
             srand(time(NULL));

@@ -11,5 +11,5 @@ TEST_CASE("Read from nvs", "[my_nvs]")
 {
     const int32_t numero = 10;
     nvs_write(numero, "numero");
-    TEST_ASSERT_EQUAL(ESP_OK, nvs_read("numero"));
+    TEST_ASSERT_EQUAL(numero, nvs_read("numero"));
 }
