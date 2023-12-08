@@ -28,7 +28,6 @@ void conectadoWifi(void *params)
     {
         if (xSemaphoreTake(conexaoWifiSemaphore, portMAX_DELAY))
         {
-            wifi_connected = 1;
 
             mqtt_start();
         }
@@ -44,9 +43,7 @@ void conectadoMQTT(void *params)
         printf("Esperando conexão com MQTT\n");
         if (xSemaphoreTake(conexaoMQTTSemaphore, portMAX_DELAY))
         {
-            mqtt_connected = 1;
             printf("Chegou conexão com MQTT\n");
-            mqtt_connected = 1;
             srand(time(NULL));
             int velocidade = rand() % 180;
             char *mensagem = malloc(sizeof(char) * 100);
@@ -78,24 +75,27 @@ void configurar_led_status_wifi()
 
 void blink_led()
 {
-    int cnt = 0;
-    while ((!wifi_connected) || cnt < 5)
+    while (true)
     {
-        printf("cnt: %d\n", cnt++);
-        vTaskDelay(500 / portTICK_PERIOD_MS);
-        gpio_set_level(GPIO_OUTPUT_IO_0, cnt % 2);
-    }
+        int cnt = 0;
+        while ((!wifi_connected))
+        {
+            cnt++;
+            vTaskDelay(500 / portTICK_PERIOD_MS);
+            gpio_set_level(GPIO_OUTPUT_IO_0, cnt % 2);
+        }
 
-    cnt = 0;
-    while ((!mqtt_connected) || cnt < 5)
-    {
-        printf("cnt: %d\n", cnt++);
+        cnt = 0;
+        while ((!mqtt_connected))
+        {
+            cnt++;
+            vTaskDelay(1000 / portTICK_PERIOD_MS);
+            gpio_set_level(GPIO_OUTPUT_IO_0, cnt % 2);
+        }
+
+        gpio_set_level(GPIO_OUTPUT_IO_0, 1);
         vTaskDelay(1000 / portTICK_PERIOD_MS);
-        gpio_set_level(GPIO_OUTPUT_IO_0, cnt % 2);
     }
-
-    gpio_set_level(GPIO_OUTPUT_IO_0, 1);
-    vTaskDelete(NULL);
 }
 
 void app_main()
