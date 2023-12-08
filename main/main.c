@@ -6,8 +6,11 @@
 #include "../components/my_nvs/my_nvs.h"
 #include "../components/wifi/wifi.h"
 #include "../components/mqtt/mqtt.h"
+#include "../components/gps_module/gps_module.h"
 #include "driver/gpio.h"
-
+#include "stdlib.h"
+#include "time.h"
+#include "string.h"
 #define NVS_NAMESPACE "storage"
 
 #define GPIO_OUTPUT_IO_0 2
@@ -21,19 +24,42 @@ int mqtt_connected = 0;
 
 void conectadoWifi(void *params)
 {
-    while (true)
+    while (!mqtt_connected)
     {
         if (xSemaphoreTake(conexaoWifiSemaphore, portMAX_DELAY))
         {
-            printf("Pegou o semaforo\n");
             wifi_connected = 1;
-            // Processamento Internet
+
             if (mqtt_start() == ESP_OK)
             {
                 mqtt_connected = 1;
-            } else {
+            }
+            else
+            {
                 printf("Erro ao iniciar MQTT\n");
             }
+        }
+    }
+
+    vTaskDelete(NULL);
+}
+
+void conectadoMQTT(void *params)
+{
+    while (true)
+    {
+        printf("Esperando conexão com MQTT\n");
+        if (xSemaphoreTake(conexaoMQTTSemaphore, portMAX_DELAY))
+        {
+            printf("Chegou conexão com MQTT\n");
+            mqtt_connected = 1;
+            srand(time(NULL));
+            int velocidade = rand() % 180;
+            char *mensagem = malloc(sizeof(char) * 100);
+            sprintf(mensagem, "{\"speed\": %d}", velocidade);
+            mqtt_envia_mensagem("v1/devices/me/telemetry", mensagem);
+            xSemaphoreGive(conexaoMQTTSemaphore);
+            vTaskDelay(1000 / portTICK_PERIOD_MS);
         }
     }
 }
@@ -92,4 +118,5 @@ void app_main()
     wifi_start();
 
     xTaskCreate(&conectadoWifi, "Conexão ao MQTT", 4096, NULL, 1, NULL);
+    xTaskCreate(&conectadoMQTT, "Envio de Dados do GPS", 4096, NULL, 1, NULL);
 }

@@ -19,7 +19,9 @@
 #include "mqtt.h"
 #define TAG "MQTT"
 #define THINGSBOARD_HOST CONFIG_ESP_MQTT_HOST_IP
+#define CREDENTIALS_MQTT CONFIG_ESP_MQTT_TOKEN
 extern SemaphoreHandle_t conexaoMQTTSemaphore;
+extern int wifi_connected;
 esp_mqtt_client_handle_t client;
 static void log_error_if_nonzero(const char *message, int error_code)
 {
@@ -36,8 +38,8 @@ static void mqtt_event_handler(void *handler_args, esp_event_base_t base, int32_
     switch ((esp_mqtt_event_id_t)event_id) {
     case MQTT_EVENT_CONNECTED:
         ESP_LOGI(TAG, "MQTT_EVENT_CONNECTED");
+        esp_mqtt_client_subscribe(client, "v1/devices/me/rpc/request/+", 0);
         xSemaphoreGive(conexaoMQTTSemaphore);
-        msg_id = esp_mqtt_client_publish(client, "v1/devices/me/telemetry", "{\"data\": 1}", 0, 0, 0);
         break;
     case MQTT_EVENT_DISCONNECTED:
         ESP_LOGI(TAG, "MQTT_EVENT_DISCONNECTED");
@@ -80,7 +82,7 @@ esp_err_t mqtt_start()
     strcat(str, THINGSBOARD_HOST);
     esp_mqtt_client_config_t mqtt_config = {
         .broker.address.uri = str,
-        .credentials.username = "LXEWhVSdr80C1d8Fh56N"
+        .credentials.username = CREDENTIALS_MQTT
 
     };
     client = esp_mqtt_client_init(&mqtt_config);
@@ -89,6 +91,7 @@ esp_err_t mqtt_start()
 }
 void mqtt_envia_mensagem(char * topico, char * mensagem)
 {
+    printf("Enviando mensagem: %s para topico %s\n", mensagem, topico);
     int message_id = esp_mqtt_client_publish(client, topico, mensagem, 0, 1, 0);
     ESP_LOGI(TAG, "Mesnagem enviada, ID: %d", message_id);
 }
