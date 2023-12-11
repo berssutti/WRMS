@@ -11,4 +11,10 @@ void init_gps_uart();
 
 void uart_task(void *pvParameters);
 
+void atualizaErros();
+
+void zeraDistancia();
+
+void calculaDistancia();
+
 #endif

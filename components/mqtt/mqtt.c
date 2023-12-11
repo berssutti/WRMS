@@ -17,6 +17,8 @@
 #include "esp_log.h"
 #include "mqtt_client.h"
 #include "mqtt.h"
+#include "../gps_module/gps_module.h"
+
 #define TAG "MQTT"
 #define THINGSBOARD_HOST CONFIG_ESP_MQTT_HOST_IP
 #define CREDENTIALS_MQTT CONFIG_ESP_MQTT_TOKEN
@@ -64,6 +66,18 @@ static void mqtt_event_handler(void *handler_args, esp_event_base_t base, int32_
         ESP_LOGI(TAG, "MQTT_EVENT_DATA");
         printf("TOPIC=%.*s\r\n", event->topic_len, event->topic);
         printf("DATA=%.*s\r\n", event->data_len, event->data);
+        if (strstr(event->data, "zerarDistancia") != NULL)
+        {
+            zeraDistancia();
+        }
+        else if (strstr(event->data, "zerarAtributos") != NULL)
+        {
+            atualizaErros();
+        }
+        else if (strstr(event->data, "calcularDistancia") != NULL)
+        {
+            calculaDistancia();
+        }
         break;
     case MQTT_EVENT_ERROR:
         ESP_LOGI(TAG, "MQTT_EVENT_ERROR");

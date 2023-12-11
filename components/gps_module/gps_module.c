@@ -11,6 +11,15 @@ char *gpsStream;
 
 extern float velocidade, altitude, longitude, latitude;
 
+float latitudeInicioLancamento, longitudeInicialLancamento;
+
+float latitudeFinalLancamento, longitudeFinalLancamento;
+
+float distanciaLancamento = 0;
+
+float erroAltitude = 0;
+float erroVelocidade = 0;
+
 void init_uart(int uart_num, int baud_rate)
 {
     uart_config_t uart_config = {
@@ -52,8 +61,12 @@ void uart_task(void *pvParameters)
                 gps_encode(gpsStream[i]);
             }
             velocidade = gps_f_speed_mps();
-            altitude = gps_f_altitude() - 1000;
-            gps_get_position(&latitude, &longitude, &fix_age);
+            if (velocidade > 0)
+                velocidade -= erroVelocidade;
+            altitude = gps_f_altitude();
+            if (altitude > 0)
+                altitude -= erroAltitude;
+            gps_f_get_position(&latitude, &longitude, &fix_age);
         }
         else
         {
@@ -62,4 +75,24 @@ void uart_task(void *pvParameters)
 
         vTaskDelay(1000 / portTICK_PERIOD_MS);
     }
+}
+
+void atualizaErros()
+{
+    erroAltitude = altitude;
+    erroVelocidade = velocidade;
+}
+
+void zeraDistancia()
+{
+    distanciaLancamento = 0;
+    latitudeInicioLancamento = latitude;
+    longitudeInicialLancamento = longitude;
+}
+
+void calculaDistancia()
+{
+    latitudeFinalLancamento = latitude;
+    longitudeFinalLancamento = longitude;
+    distanciaLancamento = gps_distance_between(latitudeInicioLancamento, longitudeInicialLancamento, latitude, longitude);
 }

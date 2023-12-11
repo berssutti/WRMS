@@ -25,7 +25,7 @@ float latitude = 0;
 float longitude = 0;
 int wifi_connected = 0;
 int mqtt_connected = 0;
-
+extern float distanciaLancamento;
 
 
 void conectadoWifi(void *params)
@@ -34,7 +34,6 @@ void conectadoWifi(void *params)
     {
         if (xSemaphoreTake(conexaoWifiSemaphore, portMAX_DELAY))
         {
-
             mqtt_start();
         }
     }
@@ -55,6 +54,8 @@ void conectadoMQTT(void *params)
             char *mensagem = malloc(sizeof(char) * 100);
             sprintf(mensagem, "{\"speed\": %f, \"altitud\": %f, \"latitude\": %f, \"longitude\": %f}", velocidade, altitude, latitude, longitude);
             mqtt_envia_mensagem("v1/devices/me/telemetry", mensagem);
+            sprintf(mensagem, "{\"distancia\": %f}", distanciaLancamento);
+            mqtt_envia_mensagem("v1/devices/me/attributes", mensagem);
             xSemaphoreGive(conexaoMQTTSemaphore);
             vTaskDelay(1000 / portTICK_PERIOD_MS);
         }
