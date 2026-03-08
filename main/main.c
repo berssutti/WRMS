@@ -30,12 +30,9 @@ extern float distanciaLancamento;
 
 void conectadoWifi(void *params)
 {
-    while (!mqtt_connected)
+    if (xSemaphoreTake(conexaoWifiSemaphore, portMAX_DELAY))
     {
-        if (xSemaphoreTake(conexaoWifiSemaphore, portMAX_DELAY))
-        {
-            mqtt_start();
-        }
+        mqtt_start();
     }
 
     vTaskDelete(NULL);
@@ -50,7 +47,7 @@ void conectadoMQTT(void *params)
         if (xSemaphoreTake(conexaoMQTTSemaphore, portMAX_DELAY))
         {
             printf("Chegou conexão com MQTT\n");
-            char *mensagem = malloc(sizeof(char) * 100);
+            char mensagem[150];
             sprintf(mensagem, "{\"speed\": %f, \"altitud\": %f, \"latitude\": %f, \"longitude\": %f}", velocidade, altitude, 
             latitude, longitude);
             mqtt_envia_mensagem("v1/devices/me/telemetry", mensagem);
@@ -120,5 +117,5 @@ void app_main()
     init_gps_uart();
     xTaskCreate(&conectadoWifi, "Conexão ao MQTT", 4096, NULL, 1, NULL);
     xTaskCreate(&conectadoMQTT, "Envio de Dados do GPS", 4096, NULL, 1, NULL);
-    xTaskCreate(&uart_task, "Task que fica monitorando dados vindos do GPS", 4069, NULL, 1, NULL);
+    xTaskCreate(&uart_task, "Task que fica monitorando dados vindos do GPS", 4096, NULL, 1, NULL);
 }
