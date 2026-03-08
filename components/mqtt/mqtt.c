@@ -66,15 +66,34 @@ static void mqtt_event_handler(void *handler_args, esp_event_base_t base, int32_
         ESP_LOGI(TAG, "MQTT_EVENT_DATA");
         printf("TOPIC=%.*s\r\n", event->topic_len, event->topic);
         printf("DATA=%.*s\r\n", event->data_len, event->data);
-        if (strstr(event->data, "zerarDistancia") != NULL)
+
+        // Helper function to find a substring within a bounded buffer
+        const char *data_ptr = event->data;
+        int data_len = event->data_len;
+
+        int found_zerarDistancia = 0;
+        int found_zerarAtributos = 0;
+        int found_calcularDistancia = 0;
+
+        for (int i = 0; i <= data_len - 14; i++) { // 14 is length of "zerarDistancia"
+            if (strncmp(&data_ptr[i], "zerarDistancia", 14) == 0) found_zerarDistancia = 1;
+        }
+        for (int i = 0; i <= data_len - 14; i++) { // 14 is length of "zerarAtributos"
+            if (strncmp(&data_ptr[i], "zerarAtributos", 14) == 0) found_zerarAtributos = 1;
+        }
+        for (int i = 0; i <= data_len - 17; i++) { // 17 is length of "calcularDistancia"
+            if (strncmp(&data_ptr[i], "calcularDistancia", 17) == 0) found_calcularDistancia = 1;
+        }
+
+        if (found_zerarDistancia)
         {
             zeraDistancia();
         }
-        else if (strstr(event->data, "zerarAtributos") != NULL)
+        else if (found_zerarAtributos)
         {
             atualizaErros();
         }
-        else if (strstr(event->data, "calcularDistancia") != NULL)
+        else if (found_calcularDistancia)
         {
             calculaDistancia();
         }
